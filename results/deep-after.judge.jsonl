@@ -1,0 +1,17 @@
+{"id": "q19-lookup-outage", "rep": 1, "regex_passed": true, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.014695, "verdicts": ["met", "met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q17-launch-burst", "rep": 1, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.011691, "verdicts": ["met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q21-forged-headers", "rep": 1, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.015133, "verdicts": ["met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q27-retention", "rep": 1, "regex_passed": true, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.011377, "verdicts": ["met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q17-launch-burst", "rep": 2, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.011891, "verdicts": ["met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q19-lookup-outage", "rep": 2, "regex_passed": true, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.014475, "verdicts": ["met", "met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q28-customer-endpoint", "rep": 1, "regex_passed": true, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.011601, "verdicts": ["met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q26-source-ip-trace", "rep": 1, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.015872999999999998, "verdicts": ["met", "met", "met", "met"], "admits_gap": false, "outcome": "correct"}
+{"id": "q21-forged-headers", "rep": 2, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.014497, "verdicts": ["met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q27-retention", "rep": 2, "regex_passed": true, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.011617, "verdicts": ["met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q28-customer-endpoint", "rep": 2, "regex_passed": true, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.011801, "verdicts": ["met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q17-launch-burst", "rep": 3, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.011503, "verdicts": ["met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q27-retention", "rep": 3, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.011705, "verdicts": ["met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q19-lookup-outage", "rep": 3, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.014159, "verdicts": ["met", "met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}
+{"id": "q21-forged-headers", "rep": 3, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.017143, "verdicts": ["met", "contradicted", "met", "met"], "admits_gap": true, "outcome": "wrong"}
+{"id": "q25-key-collision", "rep": 3, "regex_passed": false, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.014119000000000001, "verdicts": ["met", "met", "not_stated", "met"], "admits_gap": true, "outcome": "honest_gap"}
+{"id": "q28-customer-endpoint", "rep": 3, "regex_passed": true, "judge_model": "claude-sonnet-5-5", "cost_usd": 0.011789, "verdicts": ["met", "met", "met", "met"], "admits_gap": true, "outcome": "correct"}

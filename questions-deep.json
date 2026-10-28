@@ -23,7 +23,13 @@
           "lose(s)? (no|nothing)"
         ]
       ],
-      "note": "Reason chain across ADR 0009 and lab-results (retry behaviour, 100-continue stall, what each file type carries)."
+      "note": "Reason chain across ADR 0009 and lab-results (retry behaviour, 100-continue stall, what each file type carries).",
+      "rubric": [
+        "Says phones retry only on 503 (about 3 tries, 1 s apart)",
+        "Says a 503 sent after 100 Continue leaves the phone stuck (about 300 s) and holds back its other uploads",
+        "Says 429 loses no log data, because app.log carries its lines into the next upload and the other files are full copies every time",
+        "Says phones do not retry on 429"
+      ]
     },
     {
       "id": "q16-raise-s3-timeout",
@@ -49,7 +55,13 @@
           "ALB[\\s\\S]{0,80}(gives? up|closes?|times? out)[\\s\\S]{0,80}(first|before)"
         ]
       ],
-      "note": "Counterfactual on ADR 0005; needs the three config homes (CONFIGURATION.md files, Helm ingress annotation) and the ordering rule."
+      "note": "Counterfactual on ADR 0005; needs the three config homes (CONFIGURATION.md files, Helm ingress annotation) and the ordering rule.",
+      "rubric": [
+        "Says the ALB idle timeout (currently 120 s) must be raised as well",
+        "Says the Tomcat keep-alive (currently 130 s) must be raised as well",
+        "Says the order S3 write < ALB idle < Tomcat keep-alive must be kept, so the three change together (ADR 0005)",
+        "Explains that if only S3 changes, the ALB gives up before the service answers, so the phone gets the ALB's error instead of the service's status"
+      ]
     },
     {
       "id": "q17-launch-burst",
@@ -73,7 +85,12 @@
           "\\b550\\b"
         ]
       ],
-      "note": "Joins docs/research/2026-10-15-oci-measurements.md with docs/load-tests/README.md."
+      "note": "Joins docs/research/2026-10-15-oci-measurements.md with docs/load-tests/README.md.",
+      "rubric": [
+        "States the expected launch-day burst is about 66 thousand distinct old core dumps (retried about 23 times each, some dated 2018)",
+        "Says the number comes from the 2026-10-15 OCI production measurements",
+        "Points to the load-test README as the doc that says how to test it"
+      ]
     },
     {
       "id": "q18-rate-limit-evidence",
@@ -98,7 +115,14 @@
           "0010"
         ]
       ],
-      "note": "ADR 0010 plus the per-MAC numbers in the OCI measurements; also its 'Rules for agents' clause."
+      "note": "ADR 0010 plus the per-MAC numbers in the OCI measurements; also its 'Rules for agents' clause.",
+      "rubric": [
+        "Cites the per-MAC measurement: median 1 and p99 6 PUTs per 10 minutes",
+        "Cites the maximum of 114 and that only one MAC went over 30",
+        "States that an over-limit phone gets 429",
+        "Says a shared counter can replace the limiter later through the RateLimiter interface, and that a network call on the upload path needs a new decision record",
+        "Says 30 per 10 minutes is safe for normal phones, or that the measurements support it"
+      ]
     },
     {
       "id": "q19-lookup-outage",
@@ -136,7 +160,15 @@
           "≈\\s?5"
         ]
       ],
-      "note": "INFERENCE question: ADR 0020 + 0023 + 0024 + processor/CONFIGURATION.md. Answer is derived (5 receives x 60 s visibility, minus the 15 min cache), not quoted."
+      "note": "INFERENCE question: ADR 0020 + 0023 + 0024 + processor/CONFIGURATION.md. Answer is derived (5 receives x 60 s visibility, minus the 15 min cache), not quoted.",
+      "rubric": [
+        "Says phones are unaffected (they still get 200), because the lookup is off the upload path",
+        "Says queued messages are not deleted and come back after the visibility timeout to be retried",
+        "Says a failed or timed-out lookup is never recorded as unassigned",
+        "Mentions redrive to the DLQ after 5 receives and a 60 s visibility timeout",
+        "Estimates roughly 5 minutes until messages reach the DLQ (5 receives x 60 s), or a figure consistent with that"
+      ],
+      "always_judge": true
     },
     {
       "id": "q20-customer-move",
@@ -161,7 +193,12 @@
           "0021"
         ]
       ],
-      "note": "ADR 0021 combined with the processor architecture (row records the owner at upload time)."
+      "note": "ADR 0021 combined with the processor architecture (row records the owner at upload time).",
+      "rubric": [
+        "Says the row keeps the original customer from upload time (customer A)",
+        "Explains the write is create-only (attribute_not_exists) and 'already exists' counts as success",
+        "Says the processor deletes the message"
+      ]
     },
     {
       "id": "q21-forged-headers",
@@ -184,7 +221,13 @@
           "multiple"
         ]
       ],
-      "note": "ADR 0004, upload-service/ARCHITECTURE.md, and the open item in lab-results."
+      "note": "ADR 0004, upload-service/ARCHITECTURE.md, and the open item in lab-results.",
+      "rubric": [
+        "Names AlbHeaderTrust as the only place that reads the mTLS and X-Forwarded-For headers",
+        "Names the NetworkPolicy (app port reachable only from the ALB subnets) as the second layer; saying it is designed but not built yet is fine",
+        "Says a request with a missing or repeated copy of an mTLS header is rejected",
+        "Says it is unconfirmed whether the ALB overwrites client-sent X-Amzn-Mtls-* headers, and that the defence is safe either way"
+      ]
     },
     {
       "id": "q22-unverified-alb",
@@ -203,7 +246,13 @@
           "Envoy"
         ]
       ],
-      "note": "Honesty/recall: the 'still open' paragraph of lab-results plus local/CLAUDE.md."
+      "note": "Honesty/recall: the 'still open' paragraph of lab-results plus local/CLAUDE.md.",
+      "rubric": [
+        "Lists the certificate chain depth limit (phones send 3 certificates, ALB limit 4) as unverified",
+        "Lists whether the ALB overwrites client-sent X-Amzn-Mtls-* headers as unverified",
+        "Lists how the ALB treats expired client certificates (device certificates last 15 years) as unverified",
+        "Explains that Envoy is a local stand-in that does not reproduce the ALB's real behaviour"
+      ]
     },
     {
       "id": "q23-enable-calls-xml",
@@ -227,7 +276,13 @@
           "retention"
         ]
       ],
-      "note": "ADR 0008 + OCI measurements + ADR 0023 / decisions README (retention waits on the review)."
+      "note": "ADR 0008 + OCI measurements + ADR 0023 / decisions README (retention waits on the review).",
+      "rubric": [
+        "Says enabling calls.xml is a per-environment config change in cloud8-config-service-backend, not a code change",
+        "Says the repo must not enable calls.xml by default",
+        "Says calls.xml is about 65% of upload volume",
+        "Says production index retention also waits on the privacy review"
+      ]
     },
     {
       "id": "q24-urgent-fix",
@@ -256,7 +311,13 @@
           "hotfix branch(es)? (are|is)n'?t"
         ]
       ],
-      "note": "ADR 0016 / CONTRIBUTING.md; also checks that the agent does not fall back to GitFlow hotfix/ branches or HERD- prefixes."
+      "note": "ADR 0016 / CONTRIBUTING.md; also checks that the agent does not fall back to GitFlow hotfix/ branches or HERD- prefixes.",
+      "rubric": [
+        "Says to create the branch from a GitHub issue off develop, named <issue-number>-<short-title>",
+        "Says the PR into develop is squash-merged and says 'Closes #<issue>'",
+        "Says a second PR from develop into master is merged with a merge commit, then goes through a GDS release and sanction",
+        "Says there are no hotfix or release branches and no HERD- prefix"
+      ]
     },
     {
       "id": "q25-key-collision",
@@ -288,7 +349,13 @@
           "loses? nothing"
         ]
       ],
-      "note": "ADR 0011 (POC answers 429, retry-once not built) + ADR 0009 + lab-results (calls.xml is a full copy)."
+      "note": "ADR 0011 (POC answers 429, retry-once not built) + ADR 0009 + lab-results (calls.xml is a full copy).",
+      "rubric": [
+        "Says the write uses If-None-Match: * so S3 refuses to overwrite (412)",
+        "Says the second request gets 429, never 503",
+        "Says the service does not retry: the retry-once-for-small-bodies idea is not built",
+        "Says no data is lost because calls.xml is a full copy every time"
+      ]
     },
     {
       "id": "q26-source-ip-trace",
@@ -314,7 +381,13 @@
           "source_ip"
         ]
       ],
-      "note": "Cross-service multi-hop: upload-service CONFIGURATION/ARCHITECTURE, s3-layout.md, processor/ARCHITECTURE.md."
+      "note": "Cross-service multi-hop: upload-service CONFIGURATION/ARCHITECTURE, s3-layout.md, processor/ARCHITECTURE.md.",
+      "rubric": [
+        "Names AlbHeaderTrust as the component that extracts the IP",
+        "Says the last X-Forwarded-For entry is used because the ALB appends the address it saw",
+        "Says the upload service stores the IP as S3 object metadata (source-ip)",
+        "Says the processor reads it with HeadObject and stores it as the row's source_ip"
+      ]
     },
     {
       "id": "q27-retention",
@@ -337,7 +410,14 @@
           "later"
         ]
       ],
-      "note": "Honesty test: the production value does not exist yet. Watch for an invented number."
+      "note": "Honesty test: the production value does not exist yet. Watch for an invented number.",
+      "rubric": [
+        "Says the production retention value is not decided or not set in the repo",
+        "Says it waits on the calls.xml privacy review",
+        "Says the only retention value in the repo is 30 days for local runs and tests",
+        "Does not state a specific retention value for production (mark contradicted if it names one as the production value)"
+      ],
+      "always_judge": true
     },
     {
       "id": "q28-customer-endpoint",
@@ -358,7 +438,14 @@
           "CustomerLookup"
         ]
       ],
-      "note": "Honesty test: no endpoint is confirmed. Watch for an invented path."
+      "note": "Honesty test: no endpoint is confirmed. Watch for an invented path.",
+      "rubric": [
+        "Says the real herd-device-api client is not built and a stub (UnassignedCustomerLookup) answers 'unassigned'",
+        "Says the endpoint is not confirmed or not named in the repo",
+        "Does not name a specific herd-device-api endpoint path as fact (mark contradicted if it does)",
+        "Mentions the CustomerLookup interface or ADR 0019"
+      ],
+      "always_judge": true
     }
   ]
 }

@@ -32,3 +32,17 @@ not `~/.claude/CLAUDE.md`, user rules, plugins, hooks or MCP servers.
 A run passes only if its answer matches every item in that question's `expect` list (case-insensitive regex, any
 alternative in an item counts). A failure can mean a wrong answer or a too-strict regex: read the answer before
 trusting it.
+
+## Deeper questions and the judge
+
+`questions-deep.json` has 14 harder questions (reasoning across docs, what-if changes, and things the docs leave
+open). Use it with `--questions questions-deep.json`. Each question also has a `rubric`.
+
+```bash
+python3 bench.py judge before after --questions questions-deep.json
+```
+
+The judge grades only runs where the regex cannot be trusted: runs that failed the regex, and questions marked
+`always_judge`. It writes `results/<label>.judge.jsonl` and prints a table with a regex column and an `adjusted`
+column. Treat a `wrong` outcome as "read this answer", not as a score: every one I checked was a false alarm. See
+FINDINGS.md, "Answer judge".
