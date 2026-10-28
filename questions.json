@@ -1,0 +1,75 @@
+{
+  "suffix": "\n\nAnswer from this repository only. Be brief, and list the file paths you used.",
+  "questions": [
+    {
+      "id": "q01-build",
+      "question": "What command builds and tests the whole repository, and what command builds and tests only the upload service?",
+      "expect": [["mvn clean verify"], ["mvn -pl upload-service -am verify"]]
+    },
+    {
+      "id": "q02-new-rejection",
+      "question": "I want to add a new reason for rejecting an upload in the upload service. Which files do I have to change?",
+      "expect": [["Rejection\\.java", "\\bRejection\\b"], ["RejectionStatusMapper"], ["openapi\\.yaml"], ["parameteri[sz]ed", "LogUploadControllerTest"]]
+    },
+    {
+      "id": "q03-storage-status",
+      "question": "What HTTP status does the upload service return when the S3 write fails or times out, and which status must it never return?",
+      "expect": [["429"], ["503"]]
+    },
+    {
+      "id": "q04-timeouts",
+      "question": "What are the S3 write timeout, the ALB idle timeout and the Tomcat keep-alive timeout, and which ADR sets them?",
+      "expect": [["\\b60\\s?s", "\\b60 seconds"], ["\\b120\\s?s", "\\b120 seconds"], ["\\b130\\s?s", "\\b130 seconds"], ["0005", "ADR 5\\b"]]
+    },
+    {
+      "id": "q05-s3-key",
+      "question": "What is the format of the S3 object key for an uploaded file?",
+      "expect": [["raw/"], ["<mac>", "\\bmac\\b"], ["yyyy-mm-dd", "YYYY-MM-DD"], ["HHmmssSSS"], ["Z-<type>", "Z-\\{?type", "Z-app\\.log"]]
+    },
+    {
+      "id": "q06-unknown-mac",
+      "question": "In the processor, what happens to a record whose MAC belongs to no customer, and what happens if the customer lookup fails or times out?",
+      "expect": [["unassigned"], ["(stays|left|remains|leaves?|kept|back|returns?) (it )?(on|in|to) the queue", "not deleted", "isn'?t deleted", "redeliver", "retr(y|ied)"]]
+    },
+    {
+      "id": "q07-processor-ports",
+      "question": "Which ports do the processor's app and management endpoints use when it runs locally?",
+      "expect": [["1298"], ["1299"]]
+    },
+    {
+      "id": "q08-compose-env",
+      "question": "In docker-compose, what environment variable name overrides the services' AWS endpoint, and what naming mistake is easy to make?",
+      "expect": [["DEVICELOGS_AWS_ENDPOINTOVERRIDE"], ["DEVICE_LOGS_"]]
+    },
+    {
+      "id": "q09-new-file-type",
+      "question": "What steps and files are involved in accepting a new uploaded file type?",
+      "expect": [["FileType"], ["LogFileName\\b", "LogFileName\\.java"], ["LogFileNameTest", "golden vector"], ["file-types"]]
+    },
+    {
+      "id": "q10-dlq",
+      "question": "Is the processor allowed to send messages to the DLQ itself? Which ADR covers this?",
+      "expect": [["\\bno\\b", "never", "not allowed", "must not"], ["0024", "ADR 24\\b"]]
+    },
+    {
+      "id": "q11-calls-xml",
+      "question": "Why is calls.xml rejected by default, and what HTTP status does an upload of it get?",
+      "expect": [["403"], ["personal", "privacy"]]
+    },
+    {
+      "id": "q12-credentials",
+      "question": "How does the processor get its AWS credentials, and how is that different from the upload service?",
+      "expect": [["IRSA"], ["Pod Identity"]]
+    },
+    {
+      "id": "q13-single-it",
+      "question": "How do I run only the S3ObjectMetadataReaderIT integration test?",
+      "expect": [["-Dit\\.test=S3ObjectMetadataReaderIT"]]
+    },
+    {
+      "id": "q14-aws-imports",
+      "question": "Which packages in the processor may import AWS SDK classes?",
+      "expect": [["\\bqueue\\b"], ["storage\\.s3"], ["index\\.dynamodb"]]
+    }
+  ]
+}
