@@ -135,7 +135,7 @@ def cmd_smoke(args):
 
 
 def cmd_run(args):
-    spec = json.loads((HERE / "questions.json").read_text())
+    spec = json.loads((HERE / args.questions).read_text())
     questions = [q for q in spec["questions"] if not args.only or q["id"].split("-")[0] in args.only.split(",")]
     RESULTS.mkdir(exist_ok=True)
     raw_dir = RESULTS / args.label
@@ -227,6 +227,7 @@ def main():
             s.add_argument("--reps", type=int, default=3)
             s.add_argument("--jobs", type=int, default=3, help="parallel runs; keep it the same for every label")
             s.add_argument("--only", help="comma-separated question numbers, e.g. q01,q04")
+            s.add_argument("--questions", default="questions.json", help="question file next to bench.py")
     r = sub.add_parser("report")
     r.add_argument("labels", nargs="+")
     args = p.parse_args()

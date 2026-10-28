@@ -1,0 +1,364 @@
+{
+  "suffix": "\n\nAnswer from this repository only. Be brief, and list the file paths you used.",
+  "questions": [
+    {
+      "id": "q15-never-503",
+      "question": "Why must the upload service never return 503 when the S3 write fails, and why does answering 429 instead not lose any log data?",
+      "expect": [
+        [
+          "retr(y|ies|ied)[\\s\\S]{0,150}503",
+          "503[\\s\\S]{0,150}retr"
+        ],
+        [
+          "300\\s?s",
+          "300 seconds",
+          "stuck",
+          "stall"
+        ],
+        [
+          "app\\.log[\\s\\S]{0,200}(carr|next upload|next)",
+          "full cop",
+          "nothing is lost",
+          "no (log )?(lines|data) (are |is )?lost",
+          "lose(s)? (no|nothing)"
+        ]
+      ],
+      "note": "Reason chain across ADR 0009 and lab-results (retry behaviour, 100-continue stall, what each file type carries)."
+    },
+    {
+      "id": "q16-raise-s3-timeout",
+      "question": "We want to raise the S3 write deadline from 60 s to 150 s so big core dumps fit. What else has to change, where is each value set, and what goes wrong if only the S3 value changes?",
+      "expect": [
+        [
+          "\\b120\\b"
+        ],
+        [
+          "\\b130\\b"
+        ],
+        [
+          "\\bALB\\b"
+        ],
+        [
+          "Tomcat"
+        ],
+        [
+          "together",
+          "same (time|change|PR)",
+          "S3\\s*<\\s*ALB",
+          "before the ALB[\\s\\S]{0,40}(gives? up|closes?)",
+          "ALB[\\s\\S]{0,80}(gives? up|closes?|times? out)[\\s\\S]{0,80}(first|before)"
+        ]
+      ],
+      "note": "Counterfactual on ADR 0005; needs the three config homes (CONFIGURATION.md files, Helm ingress annotation) and the ordering rule."
+    },
+    {
+      "id": "q17-launch-burst",
+      "question": "Beyond normal traffic, what burst should we expect on launch day, where does that number come from, and which doc says how to test for it?",
+      "expect": [
+        [
+          "66\\s?k",
+          "66,000",
+          "66 000"
+        ],
+        [
+          "2018",
+          "1\\.52",
+          "about 23",
+          "23 times"
+        ],
+        [
+          "load-tests"
+        ],
+        [
+          "\\b550\\b"
+        ]
+      ],
+      "note": "Joins docs/research/2026-10-15-oci-measurements.md with docs/load-tests/README.md."
+    },
+    {
+      "id": "q18-rate-limit-evidence",
+      "question": "Is 30 uploads per 10 minutes per MAC safe for normal phones? What measurement supports it, what status does an over-limit phone get, and can the limit be moved to a shared counter?",
+      "expect": [
+        [
+          "p99\\D{0,12}\\b6\\b",
+          "p99 of 6"
+        ],
+        [
+          "\\b114\\b"
+        ],
+        [
+          "\\b429\\b"
+        ],
+        [
+          "one MAC|1 MAC|a single MAC|single MAC"
+        ],
+        [
+          "RateLimiter",
+          "new record",
+          "0010"
+        ]
+      ],
+      "note": "ADR 0010 plus the per-MAC numbers in the OCI measurements; also its 'Rules for agents' clause."
+    },
+    {
+      "id": "q19-lookup-outage",
+      "question": "The herd-device-api customer lookup is down for 30 minutes. What do phones see, what happens to messages already queued, can a row be written as unassigned during the outage, and with the default queue settings roughly how long until messages start reaching the DLQ?",
+      "expect": [
+        [
+          "unaffected",
+          "not affected",
+          "no (effect|impact)",
+          "isn'?t affected",
+          "doesn'?t (affect|delay)",
+          "never (delay|fail)",
+          "still (get|gets|receive|receives|answered)"
+        ],
+        [
+          "never[\\s\\S]{0,60}unassigned",
+          "not[\\s\\S]{0,40}(recorded|written|indexed)[\\s\\S]{0,40}unassigned"
+        ],
+        [
+          "5 (receives|attempts|tries|times)",
+          "five (receives|attempts|tries|times)",
+          "after 5\\b"
+        ],
+        [
+          "60\\s?s\\b",
+          "60 seconds",
+          "one minute",
+          "1 minute"
+        ],
+        [
+          "\\b(5|five)[\\s-]*min",
+          "roughly 5",
+          "about 5",
+          "~\\s?5",
+          "≈\\s?5"
+        ]
+      ],
+      "note": "INFERENCE question: ADR 0020 + 0023 + 0024 + processor/CONFIGURATION.md. Answer is derived (5 receives x 60 s visibility, minus the 15 min cache), not quoted."
+    },
+    {
+      "id": "q20-customer-move",
+      "question": "A phone's MAC moves from customer A to customer B just after its upload was indexed, and SQS then redelivers the same message. Which customer does the row hold, and what does the processor do with the message?",
+      "expect": [
+        [
+          "attribute_not_exists",
+          "create-only",
+          "already exists"
+        ],
+        [
+          "first",
+          "original",
+          "upload time",
+          "at upload",
+          "customer A"
+        ],
+        [
+          "delet"
+        ],
+        [
+          "0021"
+        ]
+      ],
+      "note": "ADR 0021 combined with the processor architecture (row records the owner at upload time)."
+    },
+    {
+      "id": "q21-forged-headers",
+      "question": "How does the upload service defend against a request carrying forged X-Amzn-Mtls headers, what are the layers, and what is still unconfirmed about how the real ALB treats such headers?",
+      "expect": [
+        [
+          "AlbHeaderTrust"
+        ],
+        [
+          "NetworkPolicy",
+          "network polic"
+        ],
+        [
+          "overwrit",
+          "replace"
+        ],
+        [
+          "duplicate",
+          "more than one",
+          "multiple"
+        ]
+      ],
+      "note": "ADR 0004, upload-service/ARCHITECTURE.md, and the open item in lab-results."
+    },
+    {
+      "id": "q22-unverified-alb",
+      "question": "Which behaviours of the real ALB are still unverified, and why can't the local Envoy setup settle them?",
+      "expect": [
+        [
+          "depth"
+        ],
+        [
+          "overwrit"
+        ],
+        [
+          "expired"
+        ],
+        [
+          "Envoy"
+        ]
+      ],
+      "note": "Honesty/recall: the 'still open' paragraph of lab-results plus local/CLAUDE.md."
+    },
+    {
+      "id": "q23-enable-calls-xml",
+      "question": "The privacy review has approved calls.xml. What exactly changes and where, what must not be done in the repo, roughly how much of upload volume does that add, and what other production setting waits on the same review?",
+      "expect": [
+        [
+          "cloud8-config-service-backend",
+          "config backend",
+          "per[- ]environment"
+        ],
+        [
+          "never",
+          "must not",
+          "not a code change",
+          "rather than"
+        ],
+        [
+          "65\\s?%"
+        ],
+        [
+          "retention"
+        ]
+      ],
+      "note": "ADR 0008 + OCI measurements + ADR 0023 / decisions README (retention waits on the review)."
+    },
+    {
+      "id": "q24-urgent-fix",
+      "question": "Production has a bug that needs an urgent fix. Walk through the branch and PR steps from issue to production, including branch naming and merge methods.",
+      "expect": [
+        [
+          "develop"
+        ],
+        [
+          "master"
+        ],
+        [
+          "Closes #"
+        ],
+        [
+          "merge commit"
+        ],
+        [
+          "squash"
+        ],
+        [
+          "no (release or )?hotfix",
+          "not a hotfix",
+          "without a hotfix",
+          "no hotfix",
+          "hotfix branch(es)? (are|is)n'?t"
+        ]
+      ],
+      "note": "ADR 0016 / CONTRIBUTING.md; also checks that the agent does not fall back to GitFlow hotfix/ branches or HERD- prefixes."
+    },
+    {
+      "id": "q25-key-collision",
+      "question": "Two identical calls.xml uploads from one phone land in the same millisecond. What does the S3 write do, what status does the second request get, does the service retry, and is any data lost?",
+      "expect": [
+        [
+          "If-None-Match"
+        ],
+        [
+          "\\b412\\b"
+        ],
+        [
+          "\\b429\\b"
+        ],
+        [
+          "not built",
+          "no retry",
+          "doesn'?t retry",
+          "does not retry",
+          "isn'?t built",
+          "not implemented",
+          "not retried"
+        ],
+        [
+          "full cop",
+          "nothing (is )?lost",
+          "no data (is )?lost",
+          "not lost",
+          "loses? nothing"
+        ]
+      ],
+      "note": "ADR 0011 (POC answers 429, retry-once not built) + ADR 0009 + lab-results (calls.xml is a full copy)."
+    },
+    {
+      "id": "q26-source-ip-trace",
+      "question": "Trace the phone's source IP from the incoming request to the DynamoDB row: which component extracts it, which X-Forwarded-For entry is used and why, and how does it get from one service to the other?",
+      "expect": [
+        [
+          "AlbHeaderTrust",
+          "\\btrust\\b"
+        ],
+        [
+          "\\blast\\b"
+        ],
+        [
+          "append"
+        ],
+        [
+          "metadata"
+        ],
+        [
+          "HeadObject"
+        ],
+        [
+          "source_ip"
+        ]
+      ],
+      "note": "Cross-service multi-hop: upload-service CONFIGURATION/ARCHITECTURE, s3-layout.md, processor/ARCHITECTURE.md."
+    },
+    {
+      "id": "q27-retention",
+      "question": "What retention do production index rows use, and what is it waiting on?",
+      "expect": [
+        [
+          "privacy review"
+        ],
+        [
+          "\\b30\\b"
+        ],
+        [
+          "config",
+          "per[- ]environment"
+        ],
+        [
+          "not (yet )?(decided|set)",
+          "waits",
+          "undecided",
+          "later"
+        ]
+      ],
+      "note": "Honesty test: the production value does not exist yet. Watch for an invented number."
+    },
+    {
+      "id": "q28-customer-endpoint",
+      "question": "Which herd-device-api endpoint does the processor call to map a MAC to a customer?",
+      "expect": [
+        [
+          "stub",
+          "UnassignedCustomerLookup"
+        ],
+        [
+          "not (yet )?(confirmed|built|implemented|decided)",
+          "unconfirmed",
+          "no real",
+          "until"
+        ],
+        [
+          "0019",
+          "CustomerLookup"
+        ]
+      ],
+      "note": "Honesty test: no endpoint is confirmed. Watch for an invented path."
+    }
+  ]
+}
